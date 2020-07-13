@@ -1,0 +1,167 @@
+{
+  "project_info": {
+    "project_number": "124567364749",
+    "firebase_url": "https://subhealth-678ee.firebaseio.com",
+    "project_id": "subhealth-678ee",
+    "storage_bucket": "subhealth-678ee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124567364749:android:fe043f2bea4a5072142ec4",
+        "android_client_info": {
+          "package_name": "com.example.subhealth_doctorapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "124567364749-nfjoclmvtqe755hnki19pi7ds3405389.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.subhealth_doctorapp",
+            "certificate_hash": "8d886cbe7d148ae7bdb60b39f7be5b802c4ce49b"
+          }
+        },
+        {
+          "client_id": "124567364749-in04fpqsph9ooqec0d1k3sn44fltjn7k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG75uY5AmS4CgM4vGselF7KHTaZKMsY1s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "124567364749-in04fpqsph9ooqec0d1k3sn44fltjn7k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "124567364749-grhpjvcfsat7gv6eqfmse5j89rh1s5sl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.subhealth.doctor"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124567364749:android:914846da1990bc69142ec4",
+        "android_client_info": {
+          "package_name": "com.sub_health_doctor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "124567364749-0r4m4vi7otf4i11blbe97dtrg4t5rmno.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sub_health_doctor",
+            "certificate_hash": "137c97dfb7489b3e120055951aaa6ffe9934aab1"
+          }
+        },
+        {
+          "client_id": "124567364749-6l958ca9uvm0ca3b5du4ntjjh49gvr1o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sub_health_doctor",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "124567364749-in04fpqsph9ooqec0d1k3sn44fltjn7k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG75uY5AmS4CgM4vGselF7KHTaZKMsY1s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "124567364749-in04fpqsph9ooqec0d1k3sn44fltjn7k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "124567364749-grhpjvcfsat7gv6eqfmse5j89rh1s5sl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.subhealth.doctor"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124567364749:android:5c482f68ead588a0142ec4",
+        "android_client_info": {
+          "package_name": "com.subhealth.patient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "124567364749-k1cdcv6tsc75dldtj13bpdt68jfo7l0m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.subhealth.patient",
+            "certificate_hash": "7cb6b84a5313dc047e9f942ecd4c00d8a254c993"
+          }
+        },
+        {
+          "client_id": "124567364749-9lv9gr8s98pfdb5purmvhmsj67gks5sk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.subhealth.patient",
+            "certificate_hash": "e25e2c2cafe4d55977fceb0f0569b34167944253"
+          }
+        },
+        {
+          "client_id": "124567364749-280bjig2mn6ffj3391p8ie2rhguhgf2k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.subhealth.patient",
+            "certificate_hash": "36e513436d56a900fb3ea6d2a1916e6415a79890"
+          }
+        },
+        {
+          "client_id": "124567364749-in04fpqsph9ooqec0d1k3sn44fltjn7k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG75uY5AmS4CgM4vGselF7KHTaZKMsY1s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "124567364749-in04fpqsph9ooqec0d1k3sn44fltjn7k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "124567364749-grhpjvcfsat7gv6eqfmse5j89rh1s5sl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.subhealth.doctor"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
