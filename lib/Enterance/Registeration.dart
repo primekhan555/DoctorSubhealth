@@ -34,6 +34,10 @@ class _RegisterationState extends State<Registeration> {
       onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
       child: Scaffold(
         body: Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage("assets/images/loginback.png"),
+                  fit: BoxFit.cover)),
           padding: EdgeInsets.only(left: 45, right: 45),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -107,6 +111,7 @@ class _RegisterationState extends State<Registeration> {
                                       context,
                                       PinVerification(
                                         number: "$fullnmber",
+                                        status: 1,
                                       ));
                                 } else {
                                   print("number already exists");

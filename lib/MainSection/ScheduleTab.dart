@@ -14,25 +14,12 @@ class ScheduleTab extends StatefulWidget {
 }
 
 class _ScheduleTabState extends State<ScheduleTab> {
-  // final fromDate = DateTime(2018, 11, 22);
-  // final toDate = DateTime.now();
-  // static final date0 = DateTime.now().subtract(Duration(days: 120));
-  // static final date1 = DateTime.now().subtract(Duration(days: 90));
-  // static final date3 = DateTime.now().subtract(Duration(days: 60));
-  // static final date5 = DateTime.now().subtract(Duration(days: 30));
-
-  // List<DataPoint<DateTime>> list = [
-  //   DataPoint<DateTime>(value: 25.5, xAxis: date0),
-  //   DataPoint<DateTime>(value: 10, xAxis: date1),
-  //   DataPoint<DateTime>(value: 10, xAxis: date3),
-  //   DataPoint<DateTime>(value: 24, xAxis: date5),
-  // ];
   var data;
   getData() async {
     var response = await http.get("https://reqres.in/api/users?page=2");
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
-      print(jsonResponse);
+      // print(jsonResponse);
       return jsonResponse["data"];
     } else
       print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
@@ -118,3 +105,18 @@ class _ScheduleTabState extends State<ScheduleTab> {
 //                 end: Alignment.topCenter)),
 //       ),
 //     )
+
+///
+///  // final fromDate = DateTime(2018, 11, 22);
+// final toDate = DateTime.now();
+// static final date0 = DateTime.now().subtract(Duration(days: 120));
+// static final date1 = DateTime.now().subtract(Duration(days: 90));
+// static final date3 = DateTime.now().subtract(Duration(days: 60));
+// static final date5 = DateTime.now().subtract(Duration(days: 30));
+
+// List<DataPoint<DateTime>> list = [
+//   DataPoint<DateTime>(value: 25.5, xAxis: date0),
+//   DataPoint<DateTime>(value: 10, xAxis: date1),
+//   DataPoint<DateTime>(value: 10, xAxis: date3),
+//   DataPoint<DateTime>(value: 24, xAxis: date5),
+// ];

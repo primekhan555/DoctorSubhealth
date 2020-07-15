@@ -1,2 +1,17 @@
 String baseUrl = "http://3.12.222.146:4000/";
 String uid;
+String profilePic;
+String fullName;
+String number;
+String userName;
+String id;
+String userId;
+String cnic;
+String address;
+String country;
+String province;
+String city;
+String dob;
+String passport;
+int gender;
+int acountStatus;

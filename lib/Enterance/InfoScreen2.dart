@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:subhealth_doctorapp/APIsModels/RegisterationPost.dart';
-import 'package:subhealth_doctorapp/Enterance/InfoScreen.dart';
 import 'package:subhealth_doctorapp/Enterance/SignIn.dart';
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
 import 'package:geolocator/geolocator.dart';

@@ -1,10 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:subhealth_doctorapp/Globals/globals.dart' as globals;
+import 'package:subhealth_doctorapp/Resources/simpleWidget.dart' as simple;
+import 'package:subhealth_doctorapp/commanWidget/pickerContainer.dart' as pC;
 
 class Personal extends StatefulWidget {
   Personal({Key key}) : super(key: key);
@@ -14,56 +20,110 @@ class Personal extends StatefulWidget {
 }
 
 class _PersonalState extends State<Personal> {
-  String name = "Faisal Khalid";
+  String name = "";
   Color male = colors.green;
   Color female = Colors.transparent;
   Color none = Colors.transparent;
   Color maleText = colors.white;
   Color femaleText = colors.black;
   Color noneText = colors.black;
+  final picker = ImagePicker();
+  String profilePic;
+  File file;
   DateTime dateToday = DateTime.now();
   String pickedDate = "Pick Date";
   GoogleMapController mapController;
   StateSetter _stateSetter;
   double latitude = 37.43296265331129;
   double longitude = -122.08832357078792;
-  String city = "City",
-      province = "Province",
-      country = "Country",
-      fullAddress = "location";
-
+  String city, province, country, fullAddress;
   List<Marker> _markers = <Marker>[];
   @override
+  void initState() {
+    if (globals.gender == 0) {
+      male = colors.green;
+      female = Colors.transparent;
+      none = Colors.transparent;
+      maleText = colors.white;
+      femaleText = colors.black;
+      noneText = colors.black;
+    } else if (globals.gender == 1) {
+      male = Colors.transparent;
+      female = colors.green;
+      none = Colors.transparent;
+      maleText = colors.black;
+      femaleText = colors.white;
+      noneText = colors.black;
+    } else if (globals.gender == 2) {
+      male = Colors.transparent;
+      female = Colors.transparent;
+      none = colors.green;
+      maleText = colors.black;
+      femaleText = colors.black;
+      noneText = colors.white;
+    }
+    // String dob = "1996-07-02T00:00:00.000Z";
+    // List<String> dobsplit = dob.split("T");
+    // List<String> dobdashes = dobsplit[0].split("-");
+    // int year = int.parse(dobdashes[0]);
+    // int month = int.parse(dobdashes[1]);
+    // int day = int.parse(dobdashes[2]);
+    // var date = DateFormat.yMMMMEEEEd().format(DateTime(year, month, day));
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
             child: Column(
           children: <Widget>[
+            globals.acountStatus == 0
+                ? simple.container(
+                    simple.text("Please Update your Profile",
+                        color: colors.white),
+                    35,
+                    width,
+                    color: colors.red)
+                : Container(),
+            globals.acountStatus == 1
+                ? simple.container(
+                    simple.text("Your Account is Pending", color: colors.white),
+                    35,
+                    width,
+                    color: colors.red)
+                : Container(),
             Container(
               margin: EdgeInsets.only(top: 20),
               alignment: Alignment.center,
-              child: Container(
-                height: 120,
-                width: 120,
-                foregroundDecoration: BoxDecoration(
-                    border: Border.all(color: colors.green, width: 3),
-                    borderRadius: BorderRadius.circular(60),
-                    image: DecorationImage(
-                        image: NetworkImage(
-                            "https://miro.medium.com/max/3072/1*o-UCEnQ3VRCrHjI8cx4JBQ.jpeg"),
-                        fit: BoxFit.cover)),
+              child: InkWell(
+                onTap: () => showChoiceDialogue(context),
+                child: Container(
+                  height: 120,
+                  width: 120,
+                  foregroundDecoration: BoxDecoration(
+                      border: Border.all(color: colors.green, width: 3),
+                      borderRadius: BorderRadius.circular(60),
+                      image: DecorationImage(
+                          image: file == null
+                              ? NetworkImage("${globals.profilePic}")
+                              : FileImage(file),
+                          fit: BoxFit.cover)),
+                ),
               ),
             ),
             space(),
-            Text(
-              "$name",
-              style: TextStyle(fontSize: 20),
-            ),
+            // Text(
+            //   "$name",
+            //   style: TextStyle(fontSize: 20),
+            // ),
+            simple.text("${globals.fullName}", fontSize: 20),
             divider(color: colors.blue),
-            textField(name, "name", true),
-            textField("faisalkhan", "username", false),
+            textField(globals.fullName, "name", false),
+            textField("${globals.userName}", "username", false),
             textField("faisalkhan@gmail.com", "email", false),
             Container(
               height: 50,
@@ -129,7 +189,7 @@ class _PersonalState extends State<Personal> {
                     });
                   }
                 },
-                child: container(pickedDate)),
+                child: container(globals.dob)), //pickedDate)),
             divider(),
             InkWell(
               onTap: () {
@@ -277,18 +337,19 @@ class _PersonalState extends State<Personal> {
                           );
                         })));
               },
-              child: container("$fullAddress"),
+              child: container("${fullAddress ?? globals.address}"),
             ),
             divider(),
-            container("$city"),
+            container("${city ?? globals.city}"),
             divider(),
-            container("$province"),
+            container("${province ?? globals.province}"),
             divider(),
-            container("$country"),
+            container("${country ?? globals.country}"),
             divider(),
-            textField("", "nic", true,
+            textField("${globals.cnic}", "nic", false,
                 keyboardType: TextInputType.number, limit: 13),
-            textField("", "passport", true, keyboardType: TextInputType.number)
+            textField("${globals.passport ?? ""}", "passport", true,
+                keyboardType: TextInputType.number)
           ],
         )),
       ),
@@ -318,6 +379,7 @@ class _PersonalState extends State<Personal> {
               maxLength: limit,
               // controller: TextEditingController(text: value),
               decoration: InputDecoration(
+                  counterText: "",
                   hintText: fieldType == "name"
                       ? "Enter Name"
                       : fieldType == "nic"
@@ -345,7 +407,7 @@ class _PersonalState extends State<Personal> {
                 topRight: Radius.circular(right),
                 bottomRight: Radius.circular(right))),
         child: Text("$gender",
-            style: TextStyle(color: textColor, fontWeight: FontWeight.w900)),
+            style: TextStyle(color: textColor, fontWeight: FontWeight.w700)),
       );
   container(value) => Container(
         height: 30,
@@ -356,4 +418,46 @@ class _PersonalState extends State<Personal> {
           overflow: TextOverflow.ellipsis,
         ),
       );
+  Future showChoiceDialogue(BuildContext context) async => showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+          backgroundColor: colors.white,
+          content: Container(
+              height: 140,
+              child: Column(children: <Widget>[
+                pC.pickerContainer("Select Any", colors.white, colors.blue, 30,
+                    FontWeight.w900, 0),
+                InkWell(
+                    onTap: () {
+                      pickImage(context, "camera");
+                      Navigator.of(context).pop();
+                    },
+                    child: pC.pickerContainer("Camera", Colors.black,
+                        Colors.grey[200], 50, FontWeight.normal, 5)),
+                InkWell(
+                    onTap: () {
+                      pickImage(context, "gallery");
+                      Navigator.of(context).pop();
+                    },
+                    child: pC.pickerContainer("Gallery", Colors.black,
+                        Colors.grey[200], 50, FontWeight.normal, 5)),
+              ]))));
+
+  pickImage(BuildContext context, String source) async {
+    final picture = await picker.getImage(
+        source: source == "camera" ? ImageSource.camera : ImageSource.gallery);
+    File croppedImage = await ImageCropper.cropImage(
+      sourcePath: picture.path,
+      // ratioX: 1.0,
+      // ratioY: 1.0,
+      maxWidth: 512,
+      maxHeight: 512,
+    );
+    setState(() {
+      file = croppedImage;
+    });
+    profilePic = croppedImage.path;
+    Uri uri = croppedImage.uri;
+    print(uri);
+  }
 }

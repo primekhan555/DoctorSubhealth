@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:subhealth_doctorapp/Enterance/Registeration.dart';
+import 'package:subhealth_doctorapp/Enterance/ForgotPassword.dart';
+import 'package:subhealth_doctorapp/Enterance/SignIn.dart';
+import 'package:subhealth_doctorapp/Enterance/Splash.dart';
 import 'Resources/colors.dart' as colors;
 
 void main() => runApp(MyApp());
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Registeration(),
+      home: Forgotpassword(),
     );
   }
 }

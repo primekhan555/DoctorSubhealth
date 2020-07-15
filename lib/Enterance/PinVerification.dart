@@ -4,6 +4,7 @@ import 'package:pin_input_text_field/pin_input_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subhealth_doctorapp/Enterance/InfoScreen.dart';
+import 'package:subhealth_doctorapp/Enterance/ResetPassword.dart';
 import 'package:subhealth_doctorapp/Globals/globals.dart' as globals;
 import 'package:subhealth_doctorapp/Resources/simpleWidget.dart' as simple;
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
@@ -14,7 +15,8 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class PinVerification extends StatefulWidget {
   final String number;
-  PinVerification({Key key, this.number}) : super(key: key);
+  final int status;
+  PinVerification({Key key, this.number, this.status}) : super(key: key);
 
   @override
   _PinVerificationState createState() => _PinVerificationState();
@@ -38,11 +40,19 @@ class _PinVerificationState extends State<PinVerification> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         // prefs.setString("uid", "${currentUser.user.uid}");
         prefs.setString("phone", "${widget.number}");
-        navigate.push(
-            context,
-            InfoScreen(
-              number: widget.number,
-            ));
+        if (widget.status == 1) {
+          navigate.push(
+              context,
+              InfoScreen(
+                number: widget.number,
+              ));
+        } else if (widget.status == 0) {
+          navigate.push(
+              context,
+              ResetPassword(
+                number: widget.number,
+              ));
+        }
         return currentUser.user;
       });
     };
@@ -82,12 +92,19 @@ class _PinVerificationState extends State<PinVerification> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       // prefs.setString("uid", "${currentUser.user.uid}");
       prefs.setString("phone", "${widget.number}");
-      navigate.push(
-          context,
-          InfoScreen(
-            number: widget.number,
-          ));
-
+      if (widget.status == 1) {
+        navigate.push(
+            context,
+            InfoScreen(
+              number: widget.number,
+            ));
+      } else if (widget.status == 0) {
+        navigate.push(
+            context,
+            ResetPassword(
+              number: widget.number,
+            ));
+      }
       return currentUser.user;
     });
   }
@@ -103,6 +120,10 @@ class _PinVerificationState extends State<PinVerification> {
       child: Scaffold(
           backgroundColor: colors.white,
           body: Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("assets/images/loginback.png"),
+                    fit: BoxFit.cover)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

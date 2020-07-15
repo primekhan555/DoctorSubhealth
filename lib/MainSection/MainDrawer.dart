@@ -5,6 +5,7 @@ import 'package:subhealth_doctorapp/DrawerWidgets/Support.dart';
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
 import 'package:subhealth_doctorapp/Resources/navigate.dart' as navigate;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:subhealth_doctorapp/Globals/globals.dart' as globals;
 
 class MainDrawer extends StatefulWidget {
   MainDrawer({Key key}) : super(key: key);
@@ -55,14 +56,13 @@ class _MainDrawerState extends State<MainDrawer> {
                     border: Border.all(color: colors.green, width: 3),
                     borderRadius: BorderRadius.circular(60),
                     image: DecorationImage(
-                        image: NetworkImage(
-                            "https://miro.medium.com/max/3072/1*o-UCEnQ3VRCrHjI8cx4JBQ.jpeg"),
+                        image: NetworkImage("${globals.profilePic}"),
                         fit: BoxFit.cover)),
               ),
               Container(
                 margin: EdgeInsets.only(left: 20, top: 20),
                 child: Text(
-                  "Faisal Khalid",
+                  "${globals.fullName}",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                 ),
               ),

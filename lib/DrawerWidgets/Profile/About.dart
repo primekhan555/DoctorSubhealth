@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
@@ -6,6 +7,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:subhealth_doctorapp/commanWidget/pickerContainer.dart' as pC;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:subhealth_doctorapp/Resources/simpleWidget.dart' as simple;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:subhealth_doctorapp/Globals/globals.dart' as globals;
 
 class About extends StatefulWidget {
   About({Key key}) : super(key: key);
@@ -28,20 +32,40 @@ class _AboutState extends State<About> {
   List<String> qualDescL = [];
   List<String> certTitleL = [];
   List<String> certDescL = [];
-  List<String> daysL = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-  ];
-  Map<String, bool> map = {
-    "Monday": false,
-    "Tuesday": false,
-  };
+  List list = List();
+  String specialName = "Select Specialization";
+  String specialValue;
+  // List<String> daysL = [
+  //   "Monday",
+  //   "Tuesday",
+  //   "Wednesday",
+  //   "Thursday",
+  //   "Friday",
+  //   "Saturday",
+  //   "Sunday"
+  // ];
+  // Map<String, bool> map = {
+  //   "Monday": false,
+  //   "Tuesday": false,
+  // };
   List<String> interchecked = [];
+
+  getSpecialities() async {
+    String url = "${globals.baseUrl}api/website/getspecality";
+    var res = await http.get(url);
+    if (res.statusCode == 200) {
+      var decoded = json.decode(res.body);
+      setState(() {
+        list = decoded["speciality"];
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    getSpecialities();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,50 +73,84 @@ class _AboutState extends State<About> {
     return Scaffold(
         body: GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Container(
-        padding: EdgeInsets.only(left: 40, right: 40),
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              textField(),
-              textField(enabled: false, fieldValue: "asf23esf"),
-              Container(
-                width: width,
-                height: 40,
-                margin: EdgeInsets.only(top: 10),
-                child: DropdownButton(
-                  isExpanded: true,
-                  hint: Text(dropDownValue),
-                  items: dropList
-                      .map((e) => DropdownMenuItem(value: e, child: Text("$e")))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      dropDownValue = value;
-                    });
-                  },
-                ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            globals.acountStatus == 0
+                ? simple.container(
+                    simple.text("Please Update your Profile",
+                        color: colors.white),
+                    35,
+                    width,
+                    color: colors.red)
+                : Container(),
+            globals.acountStatus == 1
+                ? simple.container(
+                    simple.text("Your Account is Pending", color: colors.white),
+                    35,
+                    width,
+                    color: colors.red)
+                : Container(),
+            Container(
+              padding: EdgeInsets.only(left: 40, right: 40),
+              child: Column(
+                children: <Widget>[
+                  textField(),
+                  textField(enabled: false, fieldValue: "faisal"),
+                  Container(
+                    width: width,
+                    height: 50,
+                    child: DropdownButton(
+                      isExpanded: true,
+                      items: list.map((item) {
+                        return DropdownMenuItem(
+                          child: Text(
+                            item['name'],
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          value: item['_id'].toString(),
+                          onTap: () {
+                            setState(() {
+                              specialValue = item["_id"];
+                              specialName = item["name"];
+                            });
+                          },
+                        );
+                      }).toList(),
+                      onChanged: (value) {},
+                      hint: simple.text(
+                        "$specialName",
+                      ),
+                      // hint: Text(
+                      //   "$specialName",
+                      //   overflow: TextOverflow.ellipsis,
+                      // ),
+                      // value: "$_mySelection",
+                    ),
+                  ),
+                  attachmentRow("Add CV", "file"),
+                  attachmentRow("Add Signature", "jpg"),
+                  addingQualEtc("Special-interest", "special"),
+                  listQualEtc(specialTitleL, specialDescL, "special"),
+                  addingQualEtc("Qualification", "qual"),
+                  listQualEtc(qualTitleL, qualDescL, "qual"),
+                  addingQualEtc("Certificate", "cert"),
+                  listQualEtc(certTitleL, certDescL, "cert"),
+                  // InkWell(
+                  //   onTap: () => bottomSheet(),
+                  //   child: simple.container(Text("  $map"), 35, width,
+                  //       radius: 5,
+                  //       alignment: Alignment.centerLeft,
+                  //       borderColor: colors.lightGrey,
+                  //       margin: 10),
+                  // )
+                ],
               ),
-              attachmentRow("Add CV", "file"),
-              attachmentRow("Add Signature", "jpg"),
-              addingQualEtc("Special-interest", "special"),
-              listQualEtc(specialTitleL, specialDescL, "special"),
-              addingQualEtc("Qualification", "qual"),
-              listQualEtc(qualTitleL, qualDescL, "qual"),
-              addingQualEtc("Certificate", "cert"),
-              listQualEtc(certTitleL, certDescL, "cert"),
-              // InkWell(
-              //   onTap: () => bottomSheet(),
-              //   child: simple.container(Text("  $map"), 35, width,
-              //       radius: 5,
-              //       alignment: Alignment.centerLeft,
-              //       borderColor: colors.lightGrey,
-              //       margin: 10),
-              // )
-            ],
-          ),
+            )
+          ],
         ),
       ),
+      // ),
     ));
   }
 
@@ -349,92 +407,93 @@ class _AboutState extends State<About> {
           ),
         ),
       );
-  bottomSheet() => showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-          height: 500,
-          child: Column(
-            children: <Widget>[
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: map.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Row(
-                    children: <Widget>[
-                      Checkbox(
-                        value: map.values.elementAt(index),
-                        onChanged: (value) {
-                          print(map.values.elementAt(index));
-                          // setState(() {
-                          // toggle = !value;
-
-                          map.update(map.keys.elementAt(index), (keyvalue) {
-                            setState(() {
-                              keyvalue = value;
-                            });
-                            return keyvalue;
-                          });
-                          // });
-                        },
-                      ),
-                      GestureDetector(
-                          onTap: () {
-                            print("fffff");
-                          },
-                          child: CheckBoxD()),
-                      simple.text(map.keys.elementAt(index),
-                          color: colors.blue,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900)
-                    ],
-                  );
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  MaterialButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: simple.text("Cancel", color: colors.red),
-                  ),
-                  MaterialButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: simple.text("Continue",
-                        color: colors.green, fontSize: 18),
-                  ),
-                ],
-              )
-            ],
-          )));
 }
+//   bottomSheet() => showModalBottomSheet(
+//       context: context,
+//       builder: (context) => Container(
+//           height: 500,
+//           child: Column(
+//             children: <Widget>[
+//               ListView.builder(
+//                 shrinkWrap: true,
+//                 physics: NeverScrollableScrollPhysics(),
+//                 itemCount: map.length,
+//                 itemBuilder: (BuildContext context, int index) {
+//                   return Row(
+//                     children: <Widget>[
+//                       Checkbox(
+//                         value: map.values.elementAt(index),
+//                         onChanged: (value) {
+//                           print(map.values.elementAt(index));
+//                           // setState(() {
+//                           // toggle = !value;
 
-class CheckBoxD extends StatefulWidget {
-  final String item;
-  CheckBoxD({Key key, this.item}) : super(key: key);
+//                           map.update(map.keys.elementAt(index), (keyvalue) {
+//                             setState(() {
+//                               keyvalue = value;
+//                             });
+//                             return keyvalue;
+//                           });
+//                           // });
+//                         },
+//                       ),
+//                       GestureDetector(
+//                           onTap: () {
+//                             print("fffff");
+//                           },
+//                           child: CheckBoxD()),
+//                       simple.text(map.keys.elementAt(index),
+//                           color: colors.blue,
+//                           fontSize: 18,
+//                           fontWeight: FontWeight.w900)
+//                     ],
+//                   );
+//                 },
+//               ),
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.end,
+//                 children: <Widget>[
+//                   MaterialButton(
+//                     onPressed: () => Navigator.pop(context),
+//                     child: simple.text("Cancel", color: colors.red),
+//                   ),
+//                   MaterialButton(
+//                     onPressed: () => Navigator.pop(context),
+//                     child: simple.text("Continue",
+//                         color: colors.green, fontSize: 18),
+//                   ),
+//                 ],
+//               )
+//             ],
+//           )));
+// }
 
-  @override
-  _CheckBoxDState createState() => _CheckBoxDState();
-}
+// class CheckBoxD extends StatefulWidget {
+//   final String item;
+//   CheckBoxD({Key key, this.item}) : super(key: key);
 
-class _CheckBoxDState extends State<CheckBoxD> {
-  bool toggle = false;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Checkbox(
-        value: toggle,
-        onChanged: (value) {
-          setState(() {
-            toggle = value;
-            if (value) {
-              checked.add(widget.item);
-            } else {
-              checked.remove(widget.item);
-            }
-          });
-        },
-      ),
-    );
-  }
-}
+//   @override
+//   _CheckBoxDState createState() => _CheckBoxDState();
+// }
+
+// class _CheckBoxDState extends State<CheckBoxD> {
+//   bool toggle = false;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       child: Checkbox(
+//         value: toggle,
+//         onChanged: (value) {
+//           setState(() {
+//             toggle = value;
+//             if (value) {
+//               checked.add(widget.item);
+//             } else {
+//               checked.remove(widget.item);
+//             }
+//           });
+//         },
+//       ),
+//     );
+//   }
+// }

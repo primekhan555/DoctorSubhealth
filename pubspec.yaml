@@ -65,6 +65,7 @@ flutter:
     - assets/images/noti2.png
     - assets/images/noti3.png
     - assets/images/noti4.png
+    - assets/images/loginback.png
 
   #   - images/a_dot_burr.jpeg
   # - images/a_dot_ham.jpeg
