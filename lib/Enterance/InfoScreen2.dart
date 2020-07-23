@@ -303,6 +303,15 @@ class _InfoScreen2State extends State<InfoScreen2> {
                 child: OutlineButton(
                   borderSide: BorderSide(color: colors.blue, width: 2),
                   onPressed: () async {
+                    if (pickedDate == "Date of Birth") {
+                      alert.showFlushbar(
+                          "Please choose Date of Birth", context, colors.red);
+                    }
+                    if (fullAddress == "location") {
+                      alert.showFlushbar(
+                          "Please Choose your address", context, colors.red);
+                      return;
+                    }
                     String url = "${globals.baseUrl}api/app/auth/resgister";
                     Map<String, String> headers = {
                       "Content-type": "application/json"

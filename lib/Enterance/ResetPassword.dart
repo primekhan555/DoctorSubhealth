@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:subhealth_doctorapp/APIsModels/ResetPasswordM.dart';
+import 'package:subhealth_doctorapp/Enterance/SignIn.dart';
 import 'package:subhealth_doctorapp/Resources/simpleWidget.dart' as simple;
 import 'package:subhealth_doctorapp/Assets/assets.dart' as assets;
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
@@ -7,6 +9,7 @@ import 'package:subhealth_doctorapp/Globals/globals.dart' as globals;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:subhealth_doctorapp/Warnings/warnings.dart' as alert;
+import 'package:subhealth_doctorapp/Resources/navigate.dart' as navigate;
 
 class ResetPassword extends StatefulWidget {
   final String number;
@@ -28,7 +31,7 @@ class _ResetPasswordState extends State<ResetPassword> {
           decoration: BoxDecoration(
               image: DecorationImage(
                   image: AssetImage("assets/images/loginback.png"),
-                  fit: BoxFit.cover)),
+                  fit: BoxFit.fill)),
           padding: EdgeInsets.only(left: 45, right: 45),
           child: Column(
             children: <Widget>[
@@ -63,8 +66,13 @@ class _ResetPasswordState extends State<ResetPassword> {
                               .catchError((error) => alert.showFlushbar(
                                   "Server Down", context, colors.red));
                           if (res.statusCode == 200) {
-                            var decoded = json.decode(res.body);
-                          }
+                            alert.showFlushbar("Password Changed Successfully",
+                                context, colors.green);
+                            Timer(Duration(milliseconds: 1500),
+                                () => navigate.pushRemove(context, SignIn()));
+                          } else
+                            alert.showFlushbar("Error : Please try again",
+                                context, colors.red);
                         }
                       : null,
                   child: simple.text("Reset Password", color: colors.blue),
@@ -77,26 +85,24 @@ class _ResetPasswordState extends State<ResetPassword> {
     );
   }
 
-  textField(String hint, String type) {
-    return Container(
-      child: TextFormField(
-        obscureText: true,
-        decoration: InputDecoration(hintText: "$hint"),
-        onChanged: (value) {
-          setState(() {
-            if (type == "password") {
-              password = value;
-            } else {
-              cPassword = value;
-              if (password != cPassword) {
-                error = "Password is not matching";
+  textField(String hint, String type) => Container(
+        child: TextFormField(
+          obscureText: true,
+          decoration: InputDecoration(hintText: "$hint"),
+          onChanged: (value) {
+            setState(() {
+              if (type == "password") {
+                password = value;
               } else {
-                error = "";
+                cPassword = value;
+                if (password != cPassword) {
+                  error = "Password is not matching";
+                } else {
+                  error = "";
+                }
               }
-            }
-          });
-        },
-      ),
-    );
-  }
+            });
+          },
+        ),
+      );
 }

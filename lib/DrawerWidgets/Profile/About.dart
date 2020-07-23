@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
 import 'package:file_picker/file_picker.dart';
@@ -33,7 +34,7 @@ class _AboutState extends State<About> {
   List<String> certTitleL = [];
   List<String> certDescL = [];
   List list = List();
-  String specialName = "Select Specialization";
+  String specialName;
   String specialValue;
   // List<String> daysL = [
   //   "Monday",
@@ -95,8 +96,17 @@ class _AboutState extends State<About> {
               padding: EdgeInsets.only(left: 40, right: 40),
               child: Column(
                 children: <Widget>[
-                  textField(),
-                  textField(enabled: false, fieldValue: "faisal"),
+                  textField(
+                      enabled: globals.consultant == null ? true : false,
+                      hint: "Consultant",
+                      fieldValue: "${globals.consultant ?? ""}",
+                      type: "consultant"),
+                  textField(
+                      hint: "Registeration No#",
+                      enabled: globals.registerationNo == null ? true : false,
+                      fieldValue: "${globals.registerationNo ?? ""}",
+                      type: "regisNo"),
+
                   Container(
                     width: width,
                     height: 50,
@@ -111,15 +121,19 @@ class _AboutState extends State<About> {
                           value: item['_id'].toString(),
                           onTap: () {
                             setState(() {
+                              globals.changes = true;
+                              globals.secondPageChange = "changed";
+                              globals.speciality = item["_id"];
                               specialValue = item["_id"];
                               specialName = item["name"];
                             });
                           },
                         );
                       }).toList(),
-                      onChanged: (value) {},
+                      onChanged:
+                          (value) {}, //globals.speciality == null ? (value) {} : null,
                       hint: simple.text(
-                        "$specialName",
+                        "${specialName ?? globals.specialityName ?? ""}",
                       ),
                       // hint: Text(
                       //   "$specialName",
@@ -128,6 +142,18 @@ class _AboutState extends State<About> {
                       // value: "$_mySelection",
                     ),
                   ),
+                  simple.text("Hospital/Clinic Detail"),
+                  Divider(),
+                  textField(
+                      hint: "Hospital/Clinic Address",
+                      enabled: globals.registerationNo == null ? true : false,
+                      fieldValue: "${globals.hospitalAddress ?? ""}",
+                      type: "hAddress"),
+                  textField(
+                      hint: "Hospital/Clinic Phone number",
+                      enabled: globals.registerationNo == null ? true : false,
+                      fieldValue: "${globals.hospitalNumber ?? ""}",
+                      type: "hNumber"),
                   attachmentRow("Add CV", "file"),
                   attachmentRow("Add Signature", "jpg"),
                   addingQualEtc("Special-interest", "special"),
@@ -154,10 +180,25 @@ class _AboutState extends State<About> {
     ));
   }
 
-  textField({bool enabled, String fieldValue}) => Container(
+  textField({String hint, bool enabled, String fieldValue, String type}) =>
+      Container(
         child: TextFormField(
           initialValue: fieldValue,
-          enabled: enabled,
+          enabled: true,
+          decoration: InputDecoration(hintText: "$hint"),
+          onChanged: (value) {
+            globals.secondPageChange = "changed";
+            globals.changes = true;
+            if (type == "consultant") {
+              globals.consultant = value;
+            } else if (type == "regisNo") {
+              globals.registerationNo = value;
+            } else if (type == "hAddress") {
+              globals.hospitalAddress = value;
+            } else if (type == "hNumber") {
+              globals.hospitalNumber = value;
+            }
+          },
         ),
       );
   attachmentRow(String name, String type) => Container(
@@ -175,6 +216,8 @@ class _AboutState extends State<About> {
               child: IconButton(
                 icon: Icon(Icons.attach_file),
                 onPressed: () async {
+                  globals.secondPageChange = "changed";
+                  globals.changes = true;
                   getDFile(type);
                 },
                 color: colors.white,
@@ -187,8 +230,11 @@ class _AboutState extends State<About> {
     if (type == "file") {
       File file = await FilePicker.getFile(
           type: FileType.custom, allowedExtensions: ["pdf", "doc"]);
-      Uri uri = file.uri;
-      print(uri.toString());
+      // Uri uri = file.uri;
+      // print(uri.toString());
+      String path = file.path;
+      String fileName = file.path.split("/").last;
+      globals.cv = await MultipartFile.fromFile(path, filename: fileName);
     } else {
       showChoiceDialogue(context);
     }
@@ -229,8 +275,10 @@ class _AboutState extends State<About> {
       maxWidth: 512,
       maxHeight: 512,
     );
-    Uri uri = croppedImage.uri;
-    print(uri);
+    String path;
+    path = croppedImage.path;
+    String fileName = croppedImage.path.split("/").last;
+    globals.signature = await MultipartFile.fromFile(path, filename: fileName);
   }
 
   addingQualEtc(String name, String type) {
@@ -303,16 +351,20 @@ class _AboutState extends State<About> {
               IconButton(
                 icon: simple.icon(Icons.close, color: colors.blue),
                 onPressed: () {
+                  globals.changes = true;
                   setState(() {
                     if (type == "special") {
                       title.removeAt(index);
                       desc.removeAt(index);
+                      globals.specialMapList.removeAt(index);
                     } else if (type == "qual") {
                       title.removeAt(index);
                       desc.removeAt(index);
+                      globals.specialMapList.removeAt(index);
                     } else {
                       title.removeAt(index);
                       desc.removeAt(index);
+                      globals.specialMapList.removeAt(index);
                     }
                   });
                 },
@@ -377,23 +429,35 @@ class _AboutState extends State<About> {
                     )),
                 InkWell(
                   onTap: () {
-                    if (_titleController.text.isEmpty &&
-                        _descController.text.isEmpty) {}
-                    setState(() {
-                      if (type == "special") {
-                        specialTitleL.add(_titleController.text);
-                        specialDescL.add(_descController.text);
-                      } else if (type == "qual") {
-                        qualTitleL.add(_titleController.text);
-                        qualDescL.add(_descController.text);
-                      } else {
-                        certTitleL.add(_titleController.text);
-                        certDescL.add(_descController.text);
-                      }
-                      _titleController.clear();
-                      _descController.clear();
-                      Navigator.pop(context);
-                    });
+                    if (_titleController.text.isNotEmpty &&
+                        _descController.text.isNotEmpty) {
+                      globals.changes = true;
+                      setState(() {
+                        if (type == "special") {
+                          specialTitleL.add(_titleController.text);
+                          specialDescL.add(_descController.text);
+                          var map = Mapping(
+                              _titleController.text, _descController.text);
+                          globals.specialMapList.add(json.encode(map.body()));
+                        } else if (type == "qual") {
+                          qualTitleL.add(_titleController.text);
+                          qualDescL.add(_descController.text);
+                          var map = Mapping(
+                              _titleController.text, _descController.text);
+                          globals.qualMapList.add(json.encode(map.body()));
+                        } else {
+                          certTitleL.add(_titleController.text);
+                          certDescL.add(_descController.text);
+                          var map = Mapping(
+                              _titleController.text, _descController.text);
+                          globals.certificateMapList
+                              .add(json.encode(map.body()));
+                        }
+                        _titleController.clear();
+                        _descController.clear();
+                        Navigator.pop(context);
+                      });
+                    }
                   },
                   child: Container(
                     margin: EdgeInsets.only(top: 20, bottom: 20),
@@ -407,6 +471,17 @@ class _AboutState extends State<About> {
           ),
         ),
       );
+}
+
+class Mapping {
+  String title;
+  String descrip;
+
+  Mapping(this.title, this.descrip);
+
+  Map<String, String> body() {
+    return {"title": title, "description": descrip};
+  }
 }
 //   bottomSheet() => showModalBottomSheet(
 //       context: context,

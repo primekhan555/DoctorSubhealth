@@ -123,7 +123,7 @@ class _PinVerificationState extends State<PinVerification> {
             decoration: BoxDecoration(
                 image: DecorationImage(
                     image: AssetImage("assets/images/loginback.png"),
-                    fit: BoxFit.cover)),
+                    fit: BoxFit.fill)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:subhealth_doctorapp/APIsModels/Login.dart';
 import 'package:subhealth_doctorapp/Assets/assets.dart' as assets;
+import 'package:subhealth_doctorapp/DrawerWidgets/Profile/Profile.dart';
 import 'package:subhealth_doctorapp/Enterance/ForgotPassword.dart';
 import 'package:subhealth_doctorapp/Enterance/Registeration.dart';
 import 'package:subhealth_doctorapp/MainSection/MainScreen.dart';
+import 'package:subhealth_doctorapp/MainSection/Patient/PatientHome.dart';
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
 import 'package:subhealth_doctorapp/Resources/simpleWidget.dart' as simple;
 import 'package:subhealth_doctorapp/Resources/navigate.dart' as navigate;
@@ -43,7 +45,7 @@ class _SignInState extends State<SignIn> {
           decoration: BoxDecoration(
               image: DecorationImage(
                   image: AssetImage("assets/images/loginback.png"),
-                  fit: BoxFit.cover)),
+                  fit: BoxFit.fill)),
           child: SingleChildScrollView(
             padding: EdgeInsets.only(left: 45, right: 45),
             child: Column(
@@ -95,14 +97,15 @@ class _SignInState extends State<SignIn> {
                                       .catchError((error) => alert.showFlushbar(
                                           "Server Down", context, colors.red));
                                   log("${res.statusCode}");
+                                  var decoded = json.decode(res.body);
                                   if (res.statusCode == 201) {
-                                    var decoded = json.decode(res.body);
                                     var user = decoded["user"]["profile"];
                                     SharedPreferences prefs =
                                         await SharedPreferences.getInstance();
                                     prefs.setString("token", user["token"]);
                                     prefs.setString("userId", user["_id"]);
                                     log("${user["token"]}");
+                                    globals.acountStatus = user["acountStatus"];
                                     globals.profilePic = user["profilePic"];
                                     globals.fullName = user["userFullName"];
                                     globals.userName = user["username"];
@@ -112,10 +115,18 @@ class _SignInState extends State<SignIn> {
                                     globals.country = user["country"];
                                     globals.province = user["province"];
                                     globals.city = user["city"];
-                                    // globals.dob = user["dob"];
                                     globals.passport = user["passportNo"];
                                     globals.gender = user["gender"];
+                                    globals.specialityName =
+                                        user["specialityId"];
                                     String dobString = user["dob"];
+                                    bool check =
+                                        globals.profilePic.contains("https");
+                                    if (!check)
+                                      globals.profilePic =
+                                          globals.baseUrl + globals.profilePic;
+                                    else
+                                      globals.profilePic = globals.profilePic;
                                     List<String> dobsplit =
                                         dobString.split("T");
                                     List<String> dobdashes =
@@ -129,19 +140,36 @@ class _SignInState extends State<SignIn> {
 
                                     if (user["role"] == 1) {
                                       //doctor
+                                      var doctorInfo = decoded["user"]["info"];
+                                      globals.consultant =
+                                          doctorInfo["description"];
+                                      globals.registerationNo =
+                                          doctorInfo["medicalRegistrationNo"];
+                                      if (doctorInfo["specialityId"] != null) {
+                                        globals.specialityName =
+                                            doctorInfo["specialityId"]["name"];
+                                      }
                                       log("${globals.id}");
                                       globals.userId = user["doctorId"];
                                       navigate.pushRemove(
                                           context, MainScreen());
+                                      if (globals.acountStatus == 0 ||
+                                          globals.acountStatus == 1) {
+                                        navigate.pushRemove(context, Profile());
+                                      } else if (globals.acountStatus == 2) {
+                                        // user["doctorId"]
+                                        navigate.pushRemove(
+                                            context, MainScreen());
+                                      }
                                     } else if (user["role"] == 2) {
                                       //go to patient
                                       globals.userId = user["patientId"];
+                                      navigate.pushRemove(
+                                          context, PatientHome());
                                     }
                                   } else
-                                    alert.showFlushbar(
-                                        "Account does not exist. please Sign up",
-                                        context,
-                                        colors.red);
+                                    alert.showFlushbar("${decoded["message"]}",
+                                        context, colors.red);
                                 }
                               } else
                                 _autovalidate = true;

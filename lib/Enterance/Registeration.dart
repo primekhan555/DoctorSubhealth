@@ -37,7 +37,7 @@ class _RegisterationState extends State<Registeration> {
           decoration: BoxDecoration(
               image: DecorationImage(
                   image: AssetImage("assets/images/loginback.png"),
-                  fit: BoxFit.cover)),
+                  fit: BoxFit.fill)),
           padding: EdgeInsets.only(left: 45, right: 45),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

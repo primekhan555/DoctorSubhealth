@@ -2,11 +2,11 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 
-showFlushbar(String message, var context, Color color) {
+showFlushbar(String message, var context, Color color, {int duration}) {
   Flushbar(
     message: "$message",
     backgroundColor: color,
-    duration: Duration(milliseconds: 1500),
+    duration: Duration(milliseconds: duration ?? 1500),
     flushbarPosition: FlushbarPosition.TOP,
     flushbarStyle: FlushbarStyle.FLOATING,
   )..show(context);

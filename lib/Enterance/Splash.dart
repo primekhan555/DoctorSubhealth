@@ -9,6 +9,7 @@ import 'package:subhealth_doctorapp/Assets/assets.dart' as assets;
 import 'package:subhealth_doctorapp/DrawerWidgets/Profile/Profile.dart';
 import 'package:subhealth_doctorapp/Enterance/SignIn.dart';
 import 'package:subhealth_doctorapp/MainSection/MainScreen.dart';
+import 'package:subhealth_doctorapp/MainSection/Patient/PatientHome.dart';
 import 'package:subhealth_doctorapp/Resources/colors.dart' as colors;
 import 'package:subhealth_doctorapp/Resources/navigate.dart' as navigate;
 import 'package:subhealth_doctorapp/Globals/globals.dart' as globals;
@@ -51,7 +52,15 @@ class _SplashState extends State<Splash> {
         globals.city = user["city"];
         globals.passport = user["passportNo"];
         globals.gender = user["gender"];
+        globals.email = user["email"];
+        globals.specialityName = user["specialityId"];
         String dobString = user["dob"];
+        bool check = globals.profilePic.contains("https");
+        if (!check) {
+          globals.profilePic = globals.baseUrl + globals.profilePic;
+        } else {
+          globals.profilePic = globals.profilePic;
+        }
         List<String> dobsplit = dobString.split("T");
         List<String> dobdashes = dobsplit[0].split("-");
         int year = int.parse(dobdashes[0]);
@@ -60,10 +69,24 @@ class _SplashState extends State<Splash> {
         String date =
             DateFormat.yMMMMEEEEd().format(DateTime(year, month, day));
         globals.dob = date;
-        if (globals.acountStatus == 0 || globals.acountStatus == 1) {
-          navigate.pushRemove(context, Profile());
-        } else if (globals.acountStatus == 2) {
-          navigate.pushRemove(context, MainScreen());
+        if (user["role"] == 1) {
+          var docInfo = user["doctorId"];
+          globals.consultant = docInfo["description"];
+          globals.registerationNo = docInfo["medicalRegistrationNo"];
+          if (docInfo["specialityId"] != null) {
+            globals.specialityName = docInfo["specialityId"]["name"];
+          }
+          globals.hospitalAddress = docInfo["hospitaladdress"];
+          globals.hospitalNumber = docInfo["hospitalcontact"];
+          if (globals.acountStatus == 0 || globals.acountStatus == 1) {
+            navigate.pushRemove(context, Profile());
+          } else if (globals.acountStatus == 2) {
+            navigate.pushRemove(context, MainScreen());
+          }
+        } else if (user["role"] == 2) {
+          //go to patient
+          globals.userId = user["patientId"];
+          navigate.pushRemove(context, PatientHome());
         }
       }
     } else
@@ -72,7 +95,6 @@ class _SplashState extends State<Splash> {
 
   @override
   void initState() {
-    log("message");
     getData();
     super.initState();
   }

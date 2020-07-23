@@ -1,4 +1,7 @@
+import 'dart:developer';
 import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -11,6 +14,9 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:subhealth_doctorapp/Globals/globals.dart' as globals;
 import 'package:subhealth_doctorapp/Resources/simpleWidget.dart' as simple;
 import 'package:subhealth_doctorapp/commanWidget/pickerContainer.dart' as pC;
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:image/image.dart' as img;
 
 class Personal extends StatefulWidget {
   Personal({Key key}) : super(key: key);
@@ -28,16 +34,16 @@ class _PersonalState extends State<Personal> {
   Color femaleText = colors.black;
   Color noneText = colors.black;
   final picker = ImagePicker();
-  String profilePic;
   File file;
   DateTime dateToday = DateTime.now();
-  String pickedDate = "Pick Date";
+  String pickedDate;
   GoogleMapController mapController;
   StateSetter _stateSetter;
   double latitude = 37.43296265331129;
   double longitude = -122.08832357078792;
   String city, province, country, fullAddress;
   List<Marker> _markers = <Marker>[];
+
   @override
   void initState() {
     if (globals.gender == 0) {
@@ -62,6 +68,7 @@ class _PersonalState extends State<Personal> {
       femaleText = colors.black;
       noneText = colors.white;
     }
+
     // String dob = "1996-07-02T00:00:00.000Z";
     // List<String> dobsplit = dob.split("T");
     // List<String> dobdashes = dobsplit[0].split("-");
@@ -116,15 +123,11 @@ class _PersonalState extends State<Personal> {
               ),
             ),
             space(),
-            // Text(
-            //   "$name",
-            //   style: TextStyle(fontSize: 20),
-            // ),
             simple.text("${globals.fullName}", fontSize: 20),
             divider(color: colors.blue),
-            textField(globals.fullName, "name", false),
+            textField(globals.fullName, "name", true),
             textField("${globals.userName}", "username", false),
-            textField("faisalkhan@gmail.com", "email", false),
+            textField("${globals.email ?? ""}", "email", true),
             Container(
               height: 50,
               margin: EdgeInsets.only(top: 20, left: 20, right: 20),
@@ -137,6 +140,8 @@ class _PersonalState extends State<Personal> {
                   InkWell(
                       onTap: () {
                         setState(() {
+                          globals.changes = true;
+                          globals.gender = 0;
                           male = colors.green;
                           female = Colors.transparent;
                           none = Colors.transparent;
@@ -149,6 +154,9 @@ class _PersonalState extends State<Personal> {
                   InkWell(
                       onTap: () {
                         setState(() {
+                          globals.changes = true;
+
+                          globals.gender = 1;
                           male = Colors.transparent;
                           female = colors.green;
                           none = Colors.transparent;
@@ -161,6 +169,9 @@ class _PersonalState extends State<Personal> {
                   InkWell(
                       onTap: () {
                         setState(() {
+                          globals.changes = true;
+
+                          globals.gender = 2;
                           male = Colors.transparent;
                           female = Colors.transparent;
                           none = colors.green;
@@ -185,11 +196,15 @@ class _PersonalState extends State<Personal> {
                     String formatedDate =
                         DateFormat('EEEE, d MMM, yyyy').format(date);
                     setState(() {
+                      globals.changes = true;
                       pickedDate = formatedDate;
+                      globals.dob = formatedDate;
                     });
                   }
                 },
-                child: container(globals.dob)), //pickedDate)),
+                child: container(globals.dob == "null"
+                    ? "Date of Birth"
+                    : pickedDate ?? globals.dob)), //pickedDate)),
             divider(),
             InkWell(
               onTap: () {
@@ -233,6 +248,11 @@ class _PersonalState extends State<Personal> {
                                       this.latitude = position.target.latitude;
                                       this.longitude =
                                           position.target.longitude;
+                                      globals.latitude =
+                                          position.target.latitude.toString();
+                                      globals.longitude =
+                                          position.target.longitude.toString();
+                                      globals.changes = true;
                                     });
                                   },
                                 ),
@@ -289,6 +309,15 @@ class _PersonalState extends State<Personal> {
                                                   this.longitude = value[0]
                                                       .position
                                                       .longitude;
+                                                  globals.latitude = value[0]
+                                                      .position
+                                                      .latitude
+                                                      .toString();
+                                                  globals.longitude = value[0]
+                                                      .position
+                                                      .longitude
+                                                      .toString();
+                                                  globals.changes = true;
                                                 });
                                               });
                                             },
@@ -311,6 +340,11 @@ class _PersonalState extends State<Personal> {
                                         city = first.subAdminArea;
                                         province = first.adminArea;
                                         country = first.countryName;
+                                        globals.address = first.addressLine;
+                                        globals.city = first.subAdminArea;
+                                        globals.province = first.adminArea;
+                                        globals.country = first.countryName;
+                                        globals.changes = true;
                                       });
                                       Navigator.pop(context);
                                     },
@@ -346,9 +380,12 @@ class _PersonalState extends State<Personal> {
             divider(),
             container("${country ?? globals.country}"),
             divider(),
-            textField("${globals.cnic}", "nic", false,
+            textField("${globals.cnic}", "nic", true,
                 keyboardType: TextInputType.number, limit: 13),
-            textField("${globals.passport ?? ""}", "passport", true,
+            textField(
+                "${globals.passport == "null" ? "" : globals.passport ?? ""}",
+                "passport",
+                true,
                 keyboardType: TextInputType.number)
           ],
         )),
@@ -384,11 +421,24 @@ class _PersonalState extends State<Personal> {
                       ? "Enter Name"
                       : fieldType == "nic"
                           ? "Enter CNIC without Dashes"
-                          : "Passport"),
+                          : fieldType == "email" ? "email" : "Passport"),
               enabled: enabled,
               onChanged: (value) {
+                globals.changes = true;
                 setState(() {
-                  fieldType == "name" ? name = value : print("object");
+                  if (fieldType == "name") {
+                    name = value;
+                    globals.changes = true;
+                    globals.fullName = value;
+                  } else if (fieldType == "passport") {
+                    globals.passport = value;
+                    globals.changes = true;
+                  } else if (fieldType == "nic") {
+                    globals.cnic = value;
+                    globals.changes = true;
+                  } else if (fieldType == "email") {
+                    globals.email = value;
+                  }
                 });
               },
             );
@@ -444,8 +494,10 @@ class _PersonalState extends State<Personal> {
               ]))));
 
   pickImage(BuildContext context, String source) async {
+    globals.changes = true;
     final picture = await picker.getImage(
-        source: source == "camera" ? ImageSource.camera : ImageSource.gallery);
+        source: source == "camera" ? ImageSource.camera : ImageSource.gallery,
+        imageQuality: 50);
     File croppedImage = await ImageCropper.cropImage(
       sourcePath: picture.path,
       // ratioX: 1.0,
@@ -456,8 +508,89 @@ class _PersonalState extends State<Personal> {
     setState(() {
       file = croppedImage;
     });
-    profilePic = croppedImage.path;
-    Uri uri = croppedImage.uri;
-    print(uri);
+    String path;
+    path = croppedImage.path;
+    String fileName = croppedImage.path.split("/").last;
+    globals.image = await MultipartFile.fromFile(path, filename: fileName);
+
+    // try {
+    //   final bytes = await compute(compress, croppedImage.readAsBytesSync());
+    //   log("tttttttttttttttttt ${uri.path}");
+    // final url = Uri.parse("http://3.12.222.146:4000/api/filupload");
+    //   var request = http.MultipartRequest(
+    //     'POST',
+    //     url,
+    //   )..files.add(
+    //       new http.MultipartFile.fromBytes("image", bytes, filename: fileName),
+    //     );
+    //   var res = await request.send();
+    //   log("${res.statusCode}");
+    // } catch (e) {
+    //   log("================================${e.toString()}");
+    // }
+    //////////////////////////
+
+    // http.MultipartRequest request = new http.MultipartRequest('POST', uri);
+    // // request.fields['api_key'] = 'apiKey';
+    // // request.fields['api_secret'] = 'apiSecret';
+    // request.files.add(await http.MultipartFile.fromPath(
+    //     'image', croppedImage.path,
+    //     contentType: new MediaType('image', 'jpg')));
+    // // request.files.add(await http.MultipartFile.fromPath(
+    // //     'image_file2', second.path,
+    // //     contentType: new MediaType('application', 'x-tar')));
+    // http.StreamedResponse response = await request.send();
+    // log("${response.statusCode}");
+
+    ///////////////////////////////////
+
+    // Dio dio = Dio();
+
+    // try {
+    //   FormData formData = new FormData.fromMap({
+    //     "image": await MultipartFile.fromFile(
+    //       croppedImage.path,
+    //       filename: fileName,
+    //     ), // contentType: MediaType("image", "jpg")),
+    //     "name": "faisal"
+    //   });
+    //   // Map<String, dynamic> formData = {
+    //   //   "image": await MultipartFile.fromFile(file.path, filename: fileName),
+    //   // };
+
+    //   Response response = await dio.post(
+    //       "http://3.12.222.146:4000/api/filupload",
+    //       data: formData,
+    //       options: Options(headers: {"content-Type": "multipart/form-data"}));
+    //   log("${response.statusCode}");
+    //   log("${response.data.toString()}");
+    // } catch (e) {
+    //   log("+++++++++++++++++++++++++++++++");
+    // }
+    ////////////////////
+    // var stream =
+    //     new http.ByteStream(DelegatingStream.typed(croppedImage.openRead()));
+    // var length = await croppedImage.length();
+
+    // var uri = Uri.parse(uploadURL);
+
+    // var request = new http.MultipartRequest("POST", uri);
+    // var multipartFile = new http.MultipartFile('file', stream, length,
+    //     filename: basename(croppedImage.path));
+    // //contentType: new MediaType('image', 'png'));
+
+    // request.files.add(multipartFile);
+    // var response = await request.send();
+    // print(response.statusCode);
+    // response.stream.transform(utf8.decoder).listen((value) {
+    //   print(value);
+    // });
+  }
+
+  // String fileName = croppedImage.path.split("/").last;
+  List<int> compress(List<int> bytes) {
+    var image = img.decodeImage(bytes);
+    var resize = img.copyResize(image, width: 480);
+    return img.encodePng(resize);
   }
 }

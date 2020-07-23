@@ -36,7 +36,7 @@ class _ForgotpasswordState extends State<Forgotpassword> {
           decoration: BoxDecoration(
               image: DecorationImage(
                   image: AssetImage("assets/images/loginback.png"),
-                  fit: BoxFit.cover)),
+                  fit: BoxFit.fill)),
           padding: EdgeInsets.only(left: 50, right: 50),
           child: Column(
             children: <Widget>[
@@ -65,8 +65,6 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                   decoration: InputDecoration(
                       hintText: "Enter number", counterText: ""),
                   onChanged: (value) {
-                    log("dfasdf");
-                    print("object");
                     setState(() {
                       number = value;
                       if (number.length == 10) {
@@ -87,11 +85,8 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                   borderSide: BorderSide(color: colors.blue, width: 1.5),
                   onPressed: enable
                       ? () async {
-                          log("$number");
                           String fullNumber = "+92$number";
                           log("$fullNumber");
-                          // String fullnmber = "+92$number";
-                          // number = "1";
                           String url =
                               "${globals.baseUrl}api/app/auth/isNumber";
                           Map<String, String> headers = {
@@ -110,7 +105,6 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                                   "Server down", context, colors.red);
                             });
                             var decoded = json.decode(res.body);
-                            log("${decoded["status"]}");
                             if (decoded["status"] == 0) {
                               navigate.push(
                                   context,
